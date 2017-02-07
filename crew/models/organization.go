@@ -24,10 +24,10 @@ import (
 
 // Organization Table define.
 type Organization struct {
-	ID        int64      `json:"id" gorm:"primary_key"` // Organization ID
-	Name      string     `json:"name"`                  // Organization name
-	Owner     string     `json:"-"`                     // Who create the organization
-	OwnerTeam Team       `json:"owner_team"`            // User who in the owner team can operate the organization
+	ID    int64  `json:"id" gorm:"primary_key"` // Organization ID
+	Name  string `json:"name"`                  // Organization name
+	Owner string `json:"owner"`                 // Who create the organization
+	// OwnerTeam Team       `json:"owner_team"`            // User who in the owner team can operate the organization
 	CreatedAt time.Time  `json:"-"`
 	UpdatedAt time.Time  `json:"-"`
 	DeletedAt *time.Time `json:"-" sql:"index"`

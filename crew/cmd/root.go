@@ -27,7 +27,7 @@ import (
 var RootCmd = &cobra.Command{
 	Use:   "crew",
 	Short: "Crew is a RBAC service.",
-	Long:  `Crew is a RBAC service..`,
+	Long:  `Crew is a RBAC service...`,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.

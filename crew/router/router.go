@@ -24,26 +24,21 @@ import (
 
 // SetRouters is crew router's definition fucntion.
 func SetRouters(m *macaron.Macaron) {
-
-	m.Get("/", func() string {
-		return "hello world"
-	})
-
 	m.Group("/v1", func() {
 		m.Group("/user", func() {
 			m.Post("/register", handler.PostUserRegisterV1Handler)
 			m.Post("/login", handler.PostUserLoginV1Handler)
-			m.Post("/reset", handler.PostUserResetV1Handler)
-			m.Get("/exist", handler.GetUserExistV1Handler)
+			m.Put("/reset", handler.PutUserResetV1Handler)
+			m.Get("/exist/:username", handler.GetUserExistV1Handler)
 		})
 
 		m.Group("/organization", func() {
 			m.Post("/", handler.PostOrganizationV1Handler)
 			m.Delete("/:organization", handler.DeleteOrganizationV1Handler)
-			m.Put("/:organization", handler.PutOrganizationV1Handler)
+			m.Put("/:organization/:name", handler.PutOrganizationV1Handler)
 			m.Get("/:organization", handler.GetOrganizationV1Handler)
 
-			m.Get("/list/:user", handler.GetOrganizationListV1Handler)
+			m.Get("/list", handler.GetOrganizationListV1Handler)
 		})
 
 		m.Group("/team", func() {

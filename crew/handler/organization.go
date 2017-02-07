@@ -17,27 +17,75 @@ limitations under the License.
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/Huawei/containerops/models"
 	"gopkg.in/macaron.v1"
 )
 
 func PostOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PostOrganizationV1Handler] parse request body error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	var org models.Organization
+	err = json.Unmarshal(reqBody, &org)
+	if err != nil {
+		log.Errorf("[handler.PostOrganizationV1Handler] json unmarshal error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	err = models.GetOrganization().Save(&org).Error
+	if err != nil {
+		log.Errorf("[handler.PostOrganizationV1Handler] save orgnazation error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	return Result(http.StatusOK, "success")
 }
 
 func DeleteOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	orgID := ctx.Params(":organization")
+	err := models.GetDB().Where("id = ?", orgID).Delete(models.Organization{}).Error
+	if err != nil {
+		log.Errorf("[handler.DeleteOrganizationV1Handler] error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+	return Result(http.StatusOK, "success")
 }
 
 func PutOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	orgID := ctx.Params(":organization")
+	orgName := ctx.Params(":name")
+	err := models.GetOrganization().Where("id = ?", orgID).Update("name", orgName).Error
+	if err != nil {
+		log.Errorf("[handler.PutOrganizationV1Handler] error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+	return Result(http.StatusOK, "success")
 }
 
 func GetOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	orgID := ctx.Params(":organization")
+
+	var org models.Organization
+	err := models.GetOrganization().Where("id = ?", orgID).First(&org).Error
+	if err != nil {
+		log.Errorf("[handler.GetOrganizationV1Handler] error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+	return Result(http.StatusOK, org)
 }
 
 func GetOrganizationListV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	var orgs []models.Organization
+	err := models.GetOrganization().Find(&orgs).Error
+	if err != nil {
+		log.Errorf("[handler.GetOrganizationV1Handler] error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+	return Result(http.StatusOK, orgs)
 }

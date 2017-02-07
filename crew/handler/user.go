@@ -17,23 +17,100 @@ limitations under the License.
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/Huawei/containerops/models"
 	"gopkg.in/macaron.v1"
 )
 
 func PostUserRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PostUserRegisterV1Handler] parse request body error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	var user models.User
+	err = json.Unmarshal(reqBody, &user)
+	if err != nil {
+		log.Errorf("[handler.PostUserRegisterV1Handler] json unmarshal error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	err = models.GetUser().Save(&user).Error
+	if err != nil {
+		log.Errorf("[handler.PostUserRegisterV1Handler] save user error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
 	return Result(http.StatusOK, "")
 }
 
 func PostUserLoginV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PostUserLoginV1Handler] parse request body error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	var user models.User
+	err = json.Unmarshal(reqBody, &user)
+	if err != nil {
+		log.Errorf("[handler.PostUserLoginV1Handler] json unmarshal error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	var userLogin models.User
+	err = models.GetUser().Where("name = ? AND password = ?", handler.Name, handler.Password).Find(&userLogin).Error
+	if err != nil {
+		log.Errorf("[handler.PostUserLoginV1Handler] get user error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	if userLogin.ID != 0 {
+		return Result(http.StatusOK, "success")
+	}
+
+	return Result(http.StatusOK, "failed")
 }
 
-func PostUserResetV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+func PutUserResetV1Handler(ctx *macaron.Context) (int, []byte) {
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PutUserResetV1Handler] parse request body error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	var user models.User
+	err = json.Unmarshal(reqBody, &user)
+	if err != nil {
+		log.Errorf("[handler.PutUserResetV1Handler] json unmarshal error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	err = models.GetUser().Where("name = ?", handler.Name).Update("password", handler.Password).Error
+	if err != nil {
+		log.Errorf("[handler.PutUserResetV1Handler] update user password error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	return Result(http.StatusOK, "success")
 }
 
 func GetUserExistV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	username := ctx.Params(":username")
+
+	var user models.User
+	err = models.GetUser().Where("name = ?", username).First(&user).Error
+	if err != nil {
+		log.Errorf("[handler.GetUserExistV1Handler] error:%v\n", err)
+		return Result(http.StatusBadRequest, err)
+	}
+
+	if handler.ID != 0 {
+		return Result(http.StatusOK, true)
+	}
+
+	return Result(http.StatusOK, false)
 }

@@ -23,7 +23,6 @@ import (
 	"github.com/Huawei/containerops/crew/router"
 )
 
-//
 func SetCrewMacaron(m *macaron.Macaron) {
 	//Setting Middleware
 	middleware.SetMiddlewares(m)

@@ -19,14 +19,25 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/Sirupsen/logrus"
 )
+
+var log *logrus.Logger
+
+func init() {
+	log = logrus.New()
+	log.Level = logrus.DebugLevel
+}
 
 func Result(code int, msg interface{}) (int, []byte) {
 	var result []byte
-	if code != http.StatusOK {
+	switch code {
+	case http.StatusOK:
+		result, _ = json.Marshal(map[string]interface{}{"result": msg})
+	case http.StatusBadRequest:
 		result, _ = json.Marshal(map[string]interface{}{"errMsg": msg})
-		return code, result
+	default:
 	}
-	result, _ = json.Marshal(map[string]interface{}{"result": msg})
 	return code, result
 }
