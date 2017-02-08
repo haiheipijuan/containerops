@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Huawei/containerops/models"
+	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
 )
 
@@ -28,23 +28,39 @@ func PostOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
 	reqBody, err := ctx.Req.Body().Bytes()
 	if err != nil {
 		log.Errorf("[handler.PostOrganizationV1Handler] parse request body error:%v\n", err)
-		return Result(http.StatusBadRequest, err)
+		return JSON(http.StatusBadRequest, err)
 	}
 
 	var org models.Organization
 	err = json.Unmarshal(reqBody, &org)
 	if err != nil {
 		log.Errorf("[handler.PostOrganizationV1Handler] json unmarshal error:%v\n", err)
-		return Result(http.StatusBadRequest, err)
+		return JSON(http.StatusBadRequest, err)
 	}
 
 	err = models.GetOrganization().Save(&org).Error
 	if err != nil {
 		log.Errorf("[handler.PostOrganizationV1Handler] save orgnazation error:%v\n", err)
-		return Result(http.StatusBadRequest, err)
+		return JSON(http.StatusBadRequest, err)
 	}
 
-	return Result(http.StatusOK, "success")
+	// create default owner team
+	var users []models.User
+	users = append(users, models.GetUserByName(org.Owner))
+
+	var team models.Team
+	team.Name = "Owner"
+	team.Organization = org.ID
+	team.Role = models.GetRoleByName("Owner")
+	team.Users = users
+
+	err = models.GetTeam().Save(&team).Error
+	if err != nil {
+		log.Errorf("[handler.PostOrganizationV1Handler] save team error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	return JSON(http.StatusOK, "success")
 }
 
 func DeleteOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -52,9 +68,9 @@ func DeleteOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
 	err := models.GetDB().Where("id = ?", orgID).Delete(models.Organization{}).Error
 	if err != nil {
 		log.Errorf("[handler.DeleteOrganizationV1Handler] error:%v\n", err)
-		return Result(http.StatusBadRequest, err)
+		return JSON(http.StatusBadRequest, err)
 	}
-	return Result(http.StatusOK, "success")
+	return JSON(http.StatusOK, "success")
 }
 
 func PutOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -63,9 +79,9 @@ func PutOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
 	err := models.GetOrganization().Where("id = ?", orgID).Update("name", orgName).Error
 	if err != nil {
 		log.Errorf("[handler.PutOrganizationV1Handler] error:%v\n", err)
-		return Result(http.StatusBadRequest, err)
+		return JSON(http.StatusBadRequest, err)
 	}
-	return Result(http.StatusOK, "success")
+	return JSON(http.StatusOK, "success")
 }
 
 func GetOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -75,9 +91,9 @@ func GetOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
 	err := models.GetOrganization().Where("id = ?", orgID).First(&org).Error
 	if err != nil {
 		log.Errorf("[handler.GetOrganizationV1Handler] error:%v\n", err)
-		return Result(http.StatusBadRequest, err)
+		return JSON(http.StatusBadRequest, err)
 	}
-	return Result(http.StatusOK, org)
+	return JSON(http.StatusOK, org)
 }
 
 func GetOrganizationListV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -85,7 +101,7 @@ func GetOrganizationListV1Handler(ctx *macaron.Context) (int, []byte) {
 	err := models.GetOrganization().Find(&orgs).Error
 	if err != nil {
 		log.Errorf("[handler.GetOrganizationV1Handler] error:%v\n", err)
-		return Result(http.StatusBadRequest, err)
+		return JSON(http.StatusBadRequest, err)
 	}
-	return Result(http.StatusOK, orgs)
+	return JSON(http.StatusOK, orgs)
 }

@@ -19,7 +19,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Huawei/containerops/models"
+	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
 )
 
@@ -28,7 +28,7 @@ func GetRoleListV1Handler(ctx *macaron.Context) (int, []byte) {
 	err := models.GetRole().Find(&roles).Error
 	if err != nil {
 		log.Errorf("[role.GetRoleListV1Handler] error : %v\n", err)
-		return Result(http.StatusBadRequest, err)
+		return JSON(http.StatusBadRequest, err)
 	}
-	return Result(http.StatusOK, roles)
+	return JSON(http.StatusOK, roles)
 }

@@ -23,21 +23,21 @@ import (
 )
 
 func PostWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
 
 func DeleteWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
 
 func PutWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
 
 func GetWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
 
 func GetWrokflowListV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }

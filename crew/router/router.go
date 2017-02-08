@@ -48,11 +48,9 @@ func SetRouters(m *macaron.Macaron) {
 			m.Get("/:team", handler.GetTeamV1Handler)
 
 			m.Get("/list/:organization", handler.GetTeamListV1Handler)
-			m.Get("/userlist", handler.GetTeamUserListV1Handler)
 
 			m.Group("/role", func() {
-				m.Post("/assign", handler.PostTeamRoleAssignV1handler)
-				m.Get("/", handler.GetTeamRoleV1handler)
+				m.Post("/assign/:team", handler.PostTeamRoleAssignV1handler)
 			})
 		})
 
@@ -62,7 +60,7 @@ func SetRouters(m *macaron.Macaron) {
 			m.Put("/:project", handler.PutProjectV1Handler)
 			m.Get("/:project", handler.GetProjectV1Handler)
 
-			m.Get("/list/:team", handler.GetProjectListV1Handler)
+			m.Get("/list/:/organization", handler.GetProjectListV1Handler)
 		})
 
 		m.Group("/application", func() {
@@ -71,7 +69,7 @@ func SetRouters(m *macaron.Macaron) {
 			m.Put("/:application", handler.PutApplicationV1Handler)
 			m.Get("/:application", handler.GetApplicationV1Handler)
 
-			m.Get("/list/:project/:team", handler.GetApplicationListV1Handler)
+			m.Get("/list/:project", handler.GetApplicationListV1Handler)
 		})
 
 		m.Group("/module", func() {
@@ -80,7 +78,7 @@ func SetRouters(m *macaron.Macaron) {
 			m.Put("/:module", handler.PutModuleV1Handler)
 			m.Get("/:module", handler.GetModuleV1Handler)
 
-			m.Get("/list/:application/:team", handler.GetModuleListV1Handler)
+			m.Get("/list/:application", handler.GetModuleListV1Handler)
 		})
 
 		m.Group("/workflow", func() {
@@ -101,9 +99,9 @@ func SetRouters(m *macaron.Macaron) {
 			m.Get("/list/:team", handler.GetComponentListV1Handler)
 		})
 
-		m.Group("/permission", func() {
-			m.Get("/list/:team", handler.GetTeamPermissionListV1Handler)
-		})
+		// m.Group("/permission", func() {
+		// 	m.Get("/list/:team", handler.GetTeamPermissionListV1Handler)
+		// })
 
 		m.Group("/role", func() {
 			m.Get("/list", handler.GetRoleListV1Handler)

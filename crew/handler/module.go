@@ -17,27 +17,91 @@ limitations under the License.
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
 )
 
 func PostModuleV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PostModuleV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var module models.Module
+	err = json.Unmarshal(reqBody, &module)
+	if err != nil {
+		log.Errorf("[handler.PostModuleV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	err = models.GetModule().Save(&module).Error
+	if err != nil {
+		log.Errorf("[handler.PostModuleV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	return JSON(http.StatusOK, "success")
 }
 
 func DeleteModuleV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	modueID := ctx.Params(":module")
+	err := models.GetDB().Where("id = ?", modueID).Delete(models.Module{}).Error
+	if err != nil {
+		log.Errorf("[handler.DeleteModuleV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, "success")
 }
 
 func PutModuleV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PutModuleV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var module models.Module
+	err = json.Unmarshal(reqBody, &module)
+	if err != nil {
+		log.Errorf("[handler.PutModuleV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	module.ID, _ = strconv.ParseInt(ctx.Params(":module"), 10, 64)
+
+	err = models.GetModule().Save(&module).Error
+	if err != nil {
+		log.Errorf("[handler.PutModuleV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, "success")
 }
 
 func GetModuleV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	modueID := ctx.Params(":module")
+
+	var module models.Module
+	err := models.GetModule().Where("id = ?", modueID).First(&module).Error
+	if err != nil {
+		log.Errorf("[handler.GetModuleV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, module)
 }
 
 func GetModuleListV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	appID := ctx.Params(":application")
+
+	var modules []models.Module
+	err := models.GetModule().Where("application = ?", appID).Find(&modules).Error
+	if err != nil {
+		log.Errorf("[handler.GetApplicationListV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, modules)
 }

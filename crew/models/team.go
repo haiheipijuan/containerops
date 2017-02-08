@@ -26,7 +26,7 @@ import (
 type Team struct {
 	ID           int64      `json:"id" gorm:"primary_key"` // Team ID
 	Name         string     `json:"name"`                  // Team name
-	Organization int64      `json:"organization_id"`       // Which organization the team belongs to
+	Organization int64      `json:"org_id"`                // Which organization the team belongs to
 	Users        []User     `json:"users"`                 // Users the team has
 	Role         Role       `json:"role"`                  // Role the team is
 	CreatedAt    time.Time  `json:"-"`

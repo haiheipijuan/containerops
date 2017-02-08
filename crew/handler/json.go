@@ -30,14 +30,14 @@ func init() {
 	log.Level = logrus.DebugLevel
 }
 
-func Result(code int, msg interface{}) (int, []byte) {
+func JSON(code int, msg interface{}) (int, []byte) {
 	var result []byte
 	switch code {
 	case http.StatusOK:
-		result, _ = json.Marshal(map[string]interface{}{"result": msg})
+		result, _ = json.Marshal(map[string]interface{}{"code": http.StatusOK, "result": msg})
 	case http.StatusBadRequest:
-		result, _ = json.Marshal(map[string]interface{}{"errMsg": msg})
+		result, _ = json.Marshal(map[string]interface{}{"code": http.StatusBadRequest, "errMsg": msg})
 	default:
 	}
-	return code, result
+	return http.StatusOK, result
 }

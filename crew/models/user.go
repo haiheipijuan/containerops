@@ -44,10 +44,10 @@ func GetUser() *gorm.DB {
 	return db.Model(&User{})
 }
 
-func getUserByName(name string) User {
+func GetUserByName(name string) User {
 	var user User
 	if err := GetUser().Where("name = ?", name).First(&user).Error; err != nil {
-		log.Errorf("getUserByName error: %v\n", err)
+		log.Errorf("GetUserByName error: %v\n", err)
 	}
 	return user
 }

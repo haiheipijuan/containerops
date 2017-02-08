@@ -17,27 +17,112 @@ limitations under the License.
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
 )
 
 func PostProjectV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PostProjectV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var project models.Project
+	err = json.Unmarshal(reqBody, &project)
+	if err != nil {
+		log.Errorf("[handler.PostProjectV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	err = models.GetProject().Save(&project).Error
+	if err != nil {
+		log.Errorf("[handler.PostProjectV1Handler] save project error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, "success")
 }
 
 func DeleteProjectV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	proID := ctx.Params(":project")
+	err := models.GetDB().Where("id = ?", proID).Delete(models.Project{}).Error
+	if err != nil {
+		log.Errorf("[handler.DeleteProjectV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, "success")
 }
 
 func PutProjectV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PutProjectV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var project models.Project
+	err = json.Unmarshal(reqBody, &project)
+	if err != nil {
+		log.Errorf("[handler.PutProjectV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	project.ID, _ = strconv.ParseInt(ctx.Params(":project"), 10, 64)
+
+	err = models.GetProject().Save(&project).Error
+	if err != nil {
+		log.Errorf("[handler.PutProjectV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, "success")
 }
 
 func GetProjectV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	proID := ctx.Params(":project")
+
+	var project models.Project
+	err := models.GetProject().Where("id = ?", proID).First(&project).Error
+	if err != nil {
+		log.Errorf("[handler.GetProjectV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	return JSON(http.StatusOK, project)
 }
 
 func GetProjectListV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	orgID := ctx.Params(":organization")
+
+	var projects []models.Project
+	err := models.GetProject().Where("organization = ?", orgID).Find(&projects).Error
+	if err != nil {
+		log.Errorf("[handler.GetProjectListV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	// var team models.Team
+	// err = models.GetTeam().Where("id = ?", teamID).First(&team).Error
+	// if err != nil {
+	// 	log.Errorf("[handler.GetProjectListV1Handler] error:%v\n", err)
+	// 	return JSON(http.StatusBadRequest, err)
+	// }
+
+	// var resultPorjects []models.Project
+	// if team.Name != "Owner" {
+	// 	// normal team only can get public project
+	// 	for _, v := range projects {
+	// 		if !v.Private {
+	// 			resultPorjects = append(resultPorjects, v)
+	// 		}
+	// 	}
+	// } else {
+	// 	// owner team can get all project
+	// 	resultPorjects = append(resultPorjects, projects...)
+	// }
+
+	return JSON(http.StatusOK, projects)
 }

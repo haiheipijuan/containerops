@@ -59,10 +59,10 @@ func defaultRoles() {
 	}
 }
 
-func getRoleByName(name string) Role {
+func GetRoleByName(name string) Role {
 	var role Role
 	if err := GetRole().Where("name = ?", name).First(&role).Error; err != nil {
-		log.Errorf("getRoleByName error: %v\n", err)
+		log.Errorf("GetRoleByName error: %v\n", err)
 	}
 	return role
 }

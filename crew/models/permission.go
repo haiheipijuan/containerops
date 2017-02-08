@@ -26,6 +26,7 @@ import (
 type Permission struct {
 	ID        int64      `json:"id" gorm:"primary_key"` // Permission ID
 	Name      string     `json:"name"`                  // Permission name
+	RoleID    int64      `gorm:"index"`                 // Role foreign key
 	CreatedAt time.Time  `json:"-"`
 	UpdatedAt time.Time  `json:"-"`
 	DeletedAt *time.Time `json:"-" sql:"index"`

@@ -23,21 +23,21 @@ import (
 )
 
 func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
 
 func DeleteComponentV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
 
 func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
 
 func GetComponentV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
 
 func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
-	return Result(http.StatusOK, "")
+	return JSON(http.StatusOK, "success")
 }
