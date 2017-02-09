@@ -87,7 +87,7 @@ func SetRouters(m *macaron.Macaron) {
 			m.Put("/:workflow", handler.PutWrokflowV1Handler)
 			m.Get("/:workflow", handler.GetWrokflowV1Handler)
 
-			m.Get("/list/:team", handler.GetWrokflowListV1Handler)
+			m.Get("/list/:organization", handler.GetWrokflowListV1Handler)
 		})
 
 		m.Group("/component", func() {
@@ -96,7 +96,7 @@ func SetRouters(m *macaron.Macaron) {
 			m.Put("/:component", handler.PutComponentV1Handler)
 			m.Get("/:component", handler.GetComponentV1Handler)
 
-			m.Get("/list/:team", handler.GetComponentListV1Handler)
+			m.Get("/list/:organization", handler.GetComponentListV1Handler)
 		})
 
 		// m.Group("/permission", func() {

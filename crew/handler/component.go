@@ -95,7 +95,7 @@ func GetComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 }
 
 func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
-	orgID := ctx.Params(":org_id")
+	orgID := ctx.Params(":organization")
 
 	var components []models.Component
 	err := models.GetComponent().Where("organization = ?", orgID).Find(&components).Error

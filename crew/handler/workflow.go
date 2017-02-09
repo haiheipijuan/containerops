@@ -94,7 +94,7 @@ func GetWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
 }
 
 func GetWrokflowListV1Handler(ctx *macaron.Context) (int, []byte) {
-	orgID := ctx.Params(":org_id")
+	orgID := ctx.Params(":organization")
 
 	var workflows []models.Workflow
 	err := models.GetWorkflow().Where("organization = ?", orgID).Find(&workflows).Error
