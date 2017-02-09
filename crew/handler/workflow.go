@@ -17,27 +17,90 @@ limitations under the License.
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
 )
 
 func PostWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PostWrokflowV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var workflow models.Workflow
+	err = json.Unmarshal(reqBody, &workflow)
+	if err != nil {
+		log.Errorf("[handler.PostWrokflowV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	err = models.GetWorkflow().Save(&workflow).Error
+	if err != nil {
+		log.Errorf("[handler.PostWrokflowV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
 	return JSON(http.StatusOK, "success")
 }
 
 func DeleteWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
+	workflowID := ctx.Params(":workflow")
+	err := models.GetDB().Where("id = ?", workflowID).Delete(models.Workflow{}).Error
+	if err != nil {
+		log.Errorf("[handler.DeleteWrokflowV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
 	return JSON(http.StatusOK, "success")
 }
 
 func PutWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PutWrokflowV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var workflow models.Workflow
+	err = json.Unmarshal(reqBody, &workflow)
+	if err != nil {
+		log.Errorf("[handler.PutWrokflowV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	workflow.ID, _ = strconv.ParseInt(ctx.Params(":workflow"), 10, 64)
+
+	err = models.GetComponent().Save(&workflow).Error
+	if err != nil {
+		log.Errorf("[handler.PutWrokflowV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
 	return JSON(http.StatusOK, "success")
 }
 
 func GetWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
-	return JSON(http.StatusOK, "success")
+	workflowID := ctx.Params(":workflow")
+
+	var workflow models.Workflow
+	err := models.GetWorkflow().Where("id = ?", workflowID).First(&workflow).Error
+	if err != nil {
+		log.Errorf("[handler.GetWrokflowV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, workflow)
 }
 
 func GetWrokflowListV1Handler(ctx *macaron.Context) (int, []byte) {
-	return JSON(http.StatusOK, "success")
+	orgID := ctx.Params(":org_id")
+
+	var workflows []models.Workflow
+	err := models.GetWorkflow().Where("organization = ?", orgID).Find(&workflows).Error
+	if err != nil {
+		log.Errorf("[handler.GetWrokflowListV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, workflows)
 }

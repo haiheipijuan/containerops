@@ -27,7 +27,7 @@ type Component struct {
 	ID           int64      `json:"id" gorm:"primary_key"` // Component ID
 	Name         string     `json:"name"`                  // Component name
 	Private      bool       `json:"private"`               // Component is public or private
-	Organization int64      `json:"organization_id"`       // Which organization the workflow belongs to
+	Organization int64      `json:"org_id"`                // Which organization the workflow belongs to
 	Teams        []Team     `json:"teams"`                 // Different teams have differt permissions
 	CreatedAt    time.Time  `json:"-"`
 	UpdatedAt    time.Time  `json:"-"`

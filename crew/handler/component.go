@@ -17,27 +17,91 @@ limitations under the License.
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
 )
 
 func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PostComponentV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var component models.Component
+	err = json.Unmarshal(reqBody, &component)
+	if err != nil {
+		log.Errorf("[handler.PostComponentV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	err = models.GetComponent().Save(&component).Error
+	if err != nil {
+		log.Errorf("[handler.PostComponentV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
 	return JSON(http.StatusOK, "success")
 }
 
 func DeleteComponentV1Handler(ctx *macaron.Context) (int, []byte) {
+	componentID := ctx.Params(":component")
+	err := models.GetDB().Where("id = ?", componentID).Delete(models.Component{}).Error
+	if err != nil {
+		log.Errorf("[handler.DeleteComponentV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
 	return JSON(http.StatusOK, "success")
 }
 
 func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PutComponentV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var component models.Component
+	err = json.Unmarshal(reqBody, &component)
+	if err != nil {
+		log.Errorf("[handler.PutComponentV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	component.ID, _ = strconv.ParseInt(ctx.Params(":component"), 10, 64)
+
+	err = models.GetComponent().Save(&component).Error
+	if err != nil {
+		log.Errorf("[handler.PutComponentV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
 	return JSON(http.StatusOK, "success")
 }
 
 func GetComponentV1Handler(ctx *macaron.Context) (int, []byte) {
-	return JSON(http.StatusOK, "success")
+	componentID := ctx.Params(":component")
+
+	var component models.Component
+	err := models.GetComponent().Where("id = ?", componentID).First(&component).Error
+	if err != nil {
+		log.Errorf("[handler.GetComponentV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, component)
 }
 
 func GetComponentListV1Handler(ctx *macaron.Context) (int, []byte) {
-	return JSON(http.StatusOK, "success")
+	orgID := ctx.Params(":org_id")
+
+	var components []models.Component
+	err := models.GetComponent().Where("organization = ?", orgID).Find(&components).Error
+	if err != nil {
+		log.Errorf("[handler.GetComponentListV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+	return JSON(http.StatusOK, components)
 }
