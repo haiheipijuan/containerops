@@ -45,14 +45,11 @@ func PostOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	// create default owner team
-	var users []models.User
-	users = append(users, models.GetUserByName(org.Owner))
-
 	var team models.Team
 	team.Name = "Owner"
-	team.Organization = org.ID
-	team.Role = models.GetRoleByName("Owner")
-	team.Users = users
+	team.OrganizationID = org.ID
+	team.RoleID = models.GetRoleByName("Owner").ID
+	team.Users = org.Owner
 
 	err = models.GetTeam().Save(&team).Error
 	if err != nil {
@@ -60,7 +57,7 @@ func PostOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func DeleteOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -70,18 +67,30 @@ func DeleteOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.DeleteOrganizationV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusNoContent, "success")
 }
 
 func PutOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {
+	reqBody, err := ctx.Req.Body().Bytes()
+	if err != nil {
+		log.Errorf("[handler.PutOrganizationV1Handler] parse request body error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	var org models.Organization
+	err = json.Unmarshal(reqBody, &org)
+	if err != nil {
+		log.Errorf("[handler.PutOrganizationV1Handler] json unmarshal error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
 	orgID := ctx.Params(":organization")
-	orgName := ctx.Params(":name")
-	err := models.GetOrganization().Where("id = ?", orgID).Update("name", orgName).Error
+	err = models.GetOrganization().Where("id = ?", orgID).Updates(org).Error
 	if err != nil {
 		log.Errorf("[handler.PutOrganizationV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetOrganizationV1Handler(ctx *macaron.Context) (int, []byte) {

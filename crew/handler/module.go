@@ -19,7 +19,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
@@ -45,7 +44,7 @@ func PostModuleV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func DeleteModuleV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -55,7 +54,7 @@ func DeleteModuleV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.DeleteModuleV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusNoContent, "success")
 }
 
 func PutModuleV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -72,14 +71,13 @@ func PutModuleV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	module.ID, _ = strconv.ParseInt(ctx.Params(":module"), 10, 64)
-
-	err = models.GetModule().Save(&module).Error
+	moduleID := ctx.Params(":module")
+	err = models.GetModule().Where("id = ?", moduleID).Updates(module).Error
 	if err != nil {
 		log.Errorf("[handler.PutModuleV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetModuleV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -92,6 +90,19 @@ func GetModuleV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 	return JSON(http.StatusOK, module)
+}
+
+func PutModuleTeamAssignV1handler(ctx *macaron.Context) (int, []byte) {
+	moduleID := ctx.Params(":module")
+	teamID := ctx.Params(":team")
+
+	err := models.GetTeam().Where("id = ?", teamID).Update("module_id", moduleID).Error
+	if err != nil {
+		log.Errorf("[handler.PostModuleTeamAssignV1handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetModuleListV1Handler(ctx *macaron.Context) (int, []byte) {

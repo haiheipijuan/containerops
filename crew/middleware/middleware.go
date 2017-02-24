@@ -32,6 +32,8 @@ func SetMiddlewares(m *macaron.Macaron) {
 	m.Use(func(ctx *macaron.Context) {
 		ctx.Resp.Header().Set("Access-Control-Allow-Origin", "*")
 		ctx.Resp.Header().Set("Access-Control-Allow-Methods", "POST,PUT,DELETE")
+		ctx.Resp.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+		ctx.Resp.Header().Set("Content-Type", "application/json")
 	})
 
 	m.Use(func(ctx *macaron.Context) {

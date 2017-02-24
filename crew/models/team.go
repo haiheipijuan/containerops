@@ -24,14 +24,19 @@ import (
 
 // Team Table define.
 type Team struct {
-	ID           int64      `json:"id" gorm:"primary_key"` // Team ID
-	Name         string     `json:"name"`                  // Team name
-	Organization int64      `json:"org_id"`                // Which organization the team belongs to
-	Users        []User     `json:"users"`                 // Users the team has
-	Role         Role       `json:"role"`                  // Role the team is
-	CreatedAt    time.Time  `json:"-"`
-	UpdatedAt    time.Time  `json:"-"`
-	DeletedAt    *time.Time `json:"-" sql:"index"`
+	ID             int64      `json:"id" gorm:"primary_key"` // Team ID
+	Name           string     `json:"name"`                  // Team name
+	Users          string     `json:"users"`                 // Users the team has
+	OrganizationID int64      `json:"org_id"`                // Which organization the team belongs to
+	RoleID         int64      `json:"role_id"`               // Role the team is
+	PorjectID      int64      `json:"project_id"`            // Which project the team be assigned to
+	ApplicationID  int64      `json:"application_id"`        // Which application the team be assigned to
+	ModuleID       int64      `json:"module_id"`             // Which module the team be assigned to
+	WorkflowID     int64      `json:"workflow_id"`           // Which workflow the team be assigned to
+	ComponentID    int64      `json:"component_id"`          // Which component the team be assigned to
+	CreatedAt      time.Time  `json:"-"`
+	UpdatedAt      time.Time  `json:"-"`
+	DeletedAt      *time.Time `json:"-" sql:"index"`
 }
 
 // TableName is return the table name of Team in database.

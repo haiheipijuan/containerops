@@ -18,14 +18,25 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
 )
 
 func GetRoleListV1Handler(ctx *macaron.Context) (int, []byte) {
+	pageIndex, _ := strconv.Atoi(ctx.Query("page"))
+	pageSize, _ := strconv.Atoi(ctx.Query("pagesize"))
+
+	log.Debugf("pageIndex=%v,pageSize=%v\n", pageIndex, pageSize)
+
 	var roles []models.Role
-	err := models.GetRole().Find(&roles).Error
+	var err error
+	if pageIndex > 0 {
+		err = models.GetRole().Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&roles).Error
+	} else {
+		err = models.GetRole().Limit(pageSize).Find(&roles).Error
+	}
 	if err != nil {
 		log.Errorf("[role.GetRoleListV1Handler] error : %v\n", err)
 		return JSON(http.StatusBadRequest, err)

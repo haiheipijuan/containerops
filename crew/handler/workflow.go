@@ -19,7 +19,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
@@ -44,7 +43,7 @@ func PostWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.PostWrokflowV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func DeleteWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -54,7 +53,7 @@ func DeleteWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.DeleteWrokflowV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusNoContent, "success")
 }
 
 func PutWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -71,14 +70,13 @@ func PutWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	workflow.ID, _ = strconv.ParseInt(ctx.Params(":workflow"), 10, 64)
-
-	err = models.GetComponent().Save(&workflow).Error
+	workflowID := ctx.Params(":workflow")
+	err = models.GetWorkflow().Where("id = ?", workflowID).Updates(workflow).Error
 	if err != nil {
 		log.Errorf("[handler.PutWrokflowV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetWrokflowV1Handler(ctx *macaron.Context) (int, []byte) {

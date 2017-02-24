@@ -19,7 +19,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
@@ -45,7 +44,7 @@ func PostComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func DeleteComponentV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -55,7 +54,7 @@ func DeleteComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.DeleteComponentV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusNoContent, "success")
 }
 
 func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -72,14 +71,13 @@ func PutComponentV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	component.ID, _ = strconv.ParseInt(ctx.Params(":component"), 10, 64)
-
-	err = models.GetComponent().Save(&component).Error
+	componentID := ctx.Params(":component")
+	err = models.GetComponent().Where("id = ?", componentID).Updates(component).Error
 	if err != nil {
 		log.Errorf("[handler.PutComponentV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetComponentV1Handler(ctx *macaron.Context) (int, []byte) {

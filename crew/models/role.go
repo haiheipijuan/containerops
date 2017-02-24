@@ -17,6 +17,7 @@ limitations under the License.
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -24,12 +25,12 @@ import (
 
 // Role Table define.
 type Role struct {
-	ID          int64        `json:"id" gorm:"primary_key"` // Role ID
-	Name        string       `json:"name"`                  // Role Name
-	Permissions []Permission `json:"permissions"`           // Permissions the role has
-	CreatedAt   time.Time    `json:"-"`
-	UpdatedAt   time.Time    `json:"-"`
-	DeletedAt   *time.Time   `json:"-" sql:"index"`
+	ID         int64      `json:"id" gorm:"primary_key"` // Role ID
+	Name       string     `json:"name"`                  // Role Name
+	Permission string     `json:"permission"`            // Permissions the role has
+	CreatedAt  time.Time  `json:"-"`
+	UpdatedAt  time.Time  `json:"-"`
+	DeletedAt  *time.Time `json:"-" sql:"index"`
 }
 
 // TableName is return the table name of Role in database.
@@ -52,10 +53,10 @@ func defaultRoles() {
 	log.Debugf("defaultRoles count=%v\n", count)
 
 	if count <= 0 {
-		GetRole().Save(&Role{Name: "ReadRole", Permissions: []Permission{getPermissionByName("Read")}})
-		GetRole().Save(&Role{Name: "RWRole", Permissions: []Permission{getPermissionByName("Read"), getPermissionByName("Write")}})
-		GetRole().Save(&Role{Name: "Admin", Permissions: []Permission{getPermissionByName("Read"), getPermissionByName("Write"), getPermissionByName("Delete")}})
-		GetRole().Save(&Role{Name: "Owner", Permissions: []Permission{getPermissionByName("Read"), getPermissionByName("Write"), getPermissionByName("Delete")}})
+		GetRole().Save(&Role{Name: "ReadRole", Permission: "Read"})
+		GetRole().Save(&Role{Name: "RWRole", Permission: strings.Join([]string{"Read", "Write"}, " ")})
+		GetRole().Save(&Role{Name: "Admin", Permission: strings.Join([]string{"Read", "Write", "Delete"}, " ")})
+		GetRole().Save(&Role{Name: "Owner", Permission: strings.Join([]string{"Read", "Write", "Delete"}, " ")})
 	}
 }
 

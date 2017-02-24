@@ -19,7 +19,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
@@ -44,7 +43,8 @@ func PostApplicationV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.PostApplicationV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+
+	return JSON(http.StatusCreated, "success")
 }
 
 func DeleteApplicationV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -54,7 +54,7 @@ func DeleteApplicationV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.DeleteApplicationV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusNoContent, "success")
 }
 
 func PutApplicationV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -71,14 +71,13 @@ func PutApplicationV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	app.ID, _ = strconv.ParseInt(ctx.Params(":application"), 10, 64)
-
-	err = models.GetProject().Save(&app).Error
+	appID := ctx.Params(":application")
+	err = models.GetApplication().Where("id = ?", appID).Updates(app).Error
 	if err != nil {
 		log.Errorf("[handler.PutApplicationV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetApplicationV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -91,6 +90,19 @@ func GetApplicationV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 	return JSON(http.StatusOK, app)
+}
+
+func PutApplicationTeamAssignV1handler(ctx *macaron.Context) (int, []byte) {
+	appID := ctx.Params(":application")
+	teamID := ctx.Params(":team")
+
+	err := models.GetTeam().Where("id = ?", teamID).Update("application_id", appID).Error
+	if err != nil {
+		log.Errorf("[handler.PostApplicationTeamAssignV1handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetApplicationListV1Handler(ctx *macaron.Context) (int, []byte) {

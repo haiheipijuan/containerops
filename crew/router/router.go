@@ -26,85 +26,109 @@ import (
 func SetRouters(m *macaron.Macaron) {
 	m.Group("/v1", func() {
 		m.Group("/user", func() {
-			m.Post("/register", handler.PostUserRegisterV1Handler)
+			m.Post("/", handler.PostUserRegisterV1Handler)
+			m.Get("/", handler.GetUserListV1Handler)
+
+			m.Put("/:user", handler.PutUserResetV1Handler)
+			m.Get("/:username", handler.GetUserExistV1Handler)
 			m.Post("/login", handler.PostUserLoginV1Handler)
-			m.Put("/reset", handler.PutUserResetV1Handler)
-			m.Get("/exist/:username", handler.GetUserExistV1Handler)
 		})
 
 		m.Group("/organization", func() {
 			m.Post("/", handler.PostOrganizationV1Handler)
-			m.Delete("/:organization", handler.DeleteOrganizationV1Handler)
-			m.Put("/:organization/:name", handler.PutOrganizationV1Handler)
-			m.Get("/:organization", handler.GetOrganizationV1Handler)
+			m.Get("/", handler.GetOrganizationListV1Handler)
 
-			m.Get("/list", handler.GetOrganizationListV1Handler)
+			m.Group("/:organization", func() {
+				m.Delete("/", handler.DeleteOrganizationV1Handler)
+				m.Put("/", handler.PutOrganizationV1Handler)
+				m.Get("/", handler.GetOrganizationV1Handler)
+			})
 		})
 
 		m.Group("/team", func() {
 			m.Post("/", handler.PostTeamV1Handler)
-			m.Delete("/:team", handler.DeleteTeamV1Handler)
-			m.Put("/:team", handler.PutTeamV1Handler)
-			m.Get("/:team", handler.GetTeamV1Handler)
 
-			m.Get("/list/:organization", handler.GetTeamListV1Handler)
-
-			m.Group("/role", func() {
-				m.Post("/assign/:team", handler.PostTeamRoleAssignV1handler)
+			m.Group("/:team", func() {
+				m.Delete("/", handler.DeleteTeamV1Handler)
+				m.Put("/", handler.PutTeamV1Handler)
+				m.Get("/", handler.GetTeamV1Handler)
 			})
+
+			m.Get("/:organization", handler.GetTeamListV1Handler)
+
+			m.Put("/roleassign", handler.PutTeamRoleAssignV1handler)
 		})
 
 		m.Group("/project", func() {
 			m.Post("/", handler.PostProjectV1Handler)
-			m.Delete("/:project", handler.DeleteProjectV1Handler)
-			m.Put("/:project", handler.PutProjectV1Handler)
-			m.Get("/:project", handler.GetProjectV1Handler)
 
-			m.Get("/list/:/organization", handler.GetProjectListV1Handler)
+			m.Group("/:project", func() {
+				m.Delete("/", handler.DeleteProjectV1Handler)
+				m.Put("/", handler.PutProjectV1Handler)
+				m.Get("/", handler.GetProjectV1Handler)
+
+				m.Put("/teamassign/:team", handler.PutProjectTeamAssignV1handler)
+			})
+
+			m.Get("/:organization", handler.GetProjectListV1Handler)
 		})
 
 		m.Group("/application", func() {
 			m.Post("/", handler.PostApplicationV1Handler)
-			m.Delete("/:application", handler.DeleteApplicationV1Handler)
-			m.Put("/:application", handler.PutApplicationV1Handler)
-			m.Get("/:application", handler.GetApplicationV1Handler)
 
-			m.Get("/list/:project", handler.GetApplicationListV1Handler)
+			m.Group("/:application", func() {
+				m.Delete("/", handler.DeleteApplicationV1Handler)
+				m.Put("/", handler.PutApplicationV1Handler)
+				m.Get("/", handler.GetApplicationV1Handler)
+
+				m.Put("/teamassign/:team", handler.PutApplicationTeamAssignV1handler)
+			})
+
+			m.Get("/:project", handler.GetApplicationListV1Handler)
 		})
 
 		m.Group("/module", func() {
 			m.Post("/", handler.PostModuleV1Handler)
-			m.Delete("/:module", handler.DeleteModuleV1Handler)
-			m.Put("/:module", handler.PutModuleV1Handler)
-			m.Get("/:module", handler.GetModuleV1Handler)
 
-			m.Get("/list/:application", handler.GetModuleListV1Handler)
+			m.Group("/:module", func() {
+				m.Delete("/", handler.DeleteModuleV1Handler)
+				m.Put("/", handler.PutModuleV1Handler)
+				m.Get("/", handler.GetModuleV1Handler)
+
+				m.Put("/teamassign/:team", handler.PutModuleTeamAssignV1handler)
+			})
+
+			m.Get("/:application", handler.GetModuleListV1Handler)
 		})
 
 		m.Group("/workflow", func() {
 			m.Post("/", handler.PostWrokflowV1Handler)
-			m.Delete("/:workflow", handler.DeleteWrokflowV1Handler)
-			m.Put("/:workflow", handler.PutWrokflowV1Handler)
-			m.Get("/:workflow", handler.GetWrokflowV1Handler)
 
-			m.Get("/list/:organization", handler.GetWrokflowListV1Handler)
+			m.Group("/:workflow", func() {
+				m.Delete("/", handler.DeleteWrokflowV1Handler)
+				m.Put("/", handler.PutWrokflowV1Handler)
+				m.Get("/", handler.GetWrokflowV1Handler)
+			})
+
+			m.Get("/:organization", handler.GetWrokflowListV1Handler)
 		})
 
 		m.Group("/component", func() {
 			m.Post("/", handler.PostComponentV1Handler)
-			m.Delete("/:component", handler.DeleteComponentV1Handler)
-			m.Put("/:component", handler.PutComponentV1Handler)
-			m.Get("/:component", handler.GetComponentV1Handler)
 
-			m.Get("/list/:organization", handler.GetComponentListV1Handler)
+			m.Group("/:component", func() {
+				m.Delete("/", handler.DeleteComponentV1Handler)
+				m.Put("/", handler.PutComponentV1Handler)
+				m.Get("/", handler.GetComponentV1Handler)
+			})
+
+			m.Get("/:organization", handler.GetComponentListV1Handler)
 		})
 
 		// m.Group("/permission", func() {
 		// 	m.Get("/list/:team", handler.GetTeamPermissionListV1Handler)
 		// })
 
-		m.Group("/role", func() {
-			m.Get("/list", handler.GetRoleListV1Handler)
-		})
+		m.Get("/role", handler.GetRoleListV1Handler)
 	})
 }

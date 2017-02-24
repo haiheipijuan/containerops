@@ -19,7 +19,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
@@ -44,7 +43,7 @@ func PostProjectV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.PostProjectV1Handler] save project error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func DeleteProjectV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -54,7 +53,7 @@ func DeleteProjectV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.DeleteProjectV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusNoContent, "success")
 }
 
 func PutProjectV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -71,14 +70,13 @@ func PutProjectV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	project.ID, _ = strconv.ParseInt(ctx.Params(":project"), 10, 64)
-
-	err = models.GetProject().Save(&project).Error
+	projectID := ctx.Params(":project")
+	err = models.GetProject().Where("id = ?", projectID).Updates(project).Error
 	if err != nil {
 		log.Errorf("[handler.PutProjectV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetProjectV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -92,6 +90,19 @@ func GetProjectV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	return JSON(http.StatusOK, project)
+}
+
+func PutProjectTeamAssignV1handler(ctx *macaron.Context) (int, []byte) {
+	proID := ctx.Params(":project")
+	teamID := ctx.Params(":team")
+
+	err := models.GetTeam().Where("id = ?", teamID).Update("project_id", proID).Error
+	if err != nil {
+		log.Errorf("[handler.PostProjectTeamAssignV1handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetProjectListV1Handler(ctx *macaron.Context) (int, []byte) {

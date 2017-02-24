@@ -56,12 +56,11 @@ func OpenDatabase() {
 func Migrate() {
 	OpenDatabase()
 
-	db.AutoMigrate(&Permission{}, &Role{})
+	db.AutoMigrate(&Role{})
 	db.AutoMigrate(&Organization{}, &Team{}, &User{})
 	db.AutoMigrate(&Project{}, &Application{}, &Module{})
 	db.AutoMigrate(&Workflow{}, &Component{})
 
-	defaultPermissions()
 	defaultRoles()
 
 	log.Info("AutMigrate database structs.")

@@ -27,8 +27,7 @@ type Module struct {
 	ID               int64      `json:"id" gorm:"primary_key"` // Module ID
 	Name             string     `json:"name"`                  // Module name
 	Private          bool       `json:"private"`               // Module is public or private
-	Application      int64      `json:"application_id"`        // Which application the module belongs to
-	Teams            []Team     `json:"teams"`                 // Different teams have differt permissions
+	ApplicationID    int64      `json:"application_id"`        // Which application the module belongs to
 	GitResponsityUrl string     `json:"git_responsity_url"`    // One Module correspond one git responsity url
 	CreatedAt        time.Time  `json:"-"`
 	UpdatedAt        time.Time  `json:"-"`

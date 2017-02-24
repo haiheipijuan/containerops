@@ -16,52 +16,51 @@ limitations under the License.
 
 package models
 
-import (
-	"time"
+// import (
+// 	"time"
 
-	"github.com/jinzhu/gorm"
-)
+// 	"github.com/jinzhu/gorm"
+// )
 
-// Permission Table define.
-type Permission struct {
-	ID        int64      `json:"id" gorm:"primary_key"` // Permission ID
-	Name      string     `json:"name"`                  // Permission name
-	RoleID    int64      `gorm:"index"`                 // Role foreign key
-	CreatedAt time.Time  `json:"-"`
-	UpdatedAt time.Time  `json:"-"`
-	DeletedAt *time.Time `json:"-" sql:"index"`
-}
+// // Permission Table define.
+// type Permission struct {
+// 	ID        int64      `json:"id" gorm:"primary_key"` // Permission ID
+// 	Name      string     `json:"name"`                  // Permission name
+// 	CreatedAt time.Time  `json:"-"`
+// 	UpdatedAt time.Time  `json:"-"`
+// 	DeletedAt *time.Time `json:"-" sql:"index"`
+// }
 
-// TableName is return the table name of Permission in database.
-func (r *Permission) TableName() string {
-	return "permission"
-}
+// // TableName is return the table name of Permission in database.
+// func (r *Permission) TableName() string {
+// 	return "permission"
+// }
 
-// Return *gorm.DB with table Permission
-func GetPermission() *gorm.DB {
-	return db.Model(&Permission{})
-}
+// // Return *gorm.DB with table Permission
+// func GetPermission() *gorm.DB {
+// 	return db.Model(&Permission{})
+// }
 
-// Generate default peermissions, and insert them to db
-func defaultPermissions() {
-	var count int
-	if err := GetPermission().Count(&count).Error; err != nil {
-		log.Errorf("defaultPermissions error: %v\n", err)
-		return
-	}
-	log.Debugf("defaultPermissions count=%v\n", count)
+// // Generate default peermissions, and insert them to db
+// func defaultPermissions() {
+// 	var count int
+// 	if err := GetPermission().Count(&count).Error; err != nil {
+// 		log.Errorf("defaultPermissions error: %v\n", err)
+// 		return
+// 	}
+// 	log.Debugf("defaultPermissions count=%v\n", count)
 
-	if count <= 0 {
-		GetPermission().Save(&Permission{Name: "Read"})
-		GetPermission().Save(&Permission{Name: "Write"})
-		GetPermission().Save(&Permission{Name: "Delete"})
-	}
-}
+// 	if count <= 0 {
+// 		GetPermission().Save(&Permission{Name: "Read"})
+// 		GetPermission().Save(&Permission{Name: "Write"})
+// 		GetPermission().Save(&Permission{Name: "Delete"})
+// 	}
+// }
 
-func getPermissionByName(name string) Permission {
-	var permission Permission
-	if err := GetPermission().Where("name = ?", name).First(&permission).Error; err != nil {
-		log.Errorf("getPermissionByName error: %v\n", err)
-	}
-	return permission
-}
+// func getPermissionByName(name string) Permission {
+// 	var permission Permission
+// 	if err := GetPermission().Where("name = ?", name).First(&permission).Error; err != nil {
+// 		log.Errorf("getPermissionByName error: %v\n", err)
+// 	}
+// 	return permission
+// }

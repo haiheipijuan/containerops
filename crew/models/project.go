@@ -28,7 +28,6 @@ type Project struct {
 	Name         string     `json:"name"`                  // Project name
 	Private      bool       `json:"private"`               // Project is public or private
 	Organization int64      `json:"org_id"`                // Which org the project belongs to
-	Teams        []Team     `json:"teams"`                 // Different teams have differt permissions
 	CreatedAt    time.Time  `json:"-"`
 	UpdatedAt    time.Time  `json:"-"`
 	DeletedAt    *time.Time `json:"-" sql:"index"`

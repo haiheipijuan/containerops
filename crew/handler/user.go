@@ -19,6 +19,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
@@ -44,7 +45,7 @@ func PostUserRegisterV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func PostUserLoginV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -62,17 +63,20 @@ func PostUserLoginV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	var userLogin models.User
-	err = models.GetUser().Where("name = ? AND password = ?", user.Name, user.Password).Find(&userLogin).Error
+	err = models.GetUser().Where("name = ?", user.Name).Find(&userLogin).Error
 	if err != nil {
+		if err.Error() == "record not found" {
+			return JSON(http.StatusBadRequest, "user not exist")
+		}
 		log.Errorf("[handler.PostUserLoginV1Handler] get user error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	if userLogin.ID != 0 {
-		return JSON(http.StatusOK, "success")
+	if userLogin.Password != user.Password {
+		return JSON(http.StatusBadRequest, "passowrd error")
 	}
 
-	return JSON(http.StatusOK, "failed")
+	return JSON(http.StatusOK, "success")
 }
 
 func PutUserResetV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -89,13 +93,27 @@ func PutUserResetV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	err = models.GetUser().Where("name = ?", user.Name).Update("password", user.Password).Error
+	userID := ctx.Params(":user")
+
+	var existUser models.User
+	err = models.GetUser().Where("id = ?", userID).First(&existUser).Error
 	if err != nil {
-		log.Errorf("[handler.PutUserResetV1Handler] update user password error:%v\n", err)
+		log.Errorf("[handler.PutUserResetV1Handler] get exist user error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	return JSON(http.StatusOK, "success")
+	if user.Name != "" && user.Name != existUser.Name {
+		log.Errorf("[handler.PutUserResetV1Handler] username can not be update.\n")
+		return JSON(http.StatusBadRequest, "username can not be update.")
+	}
+
+	err = models.GetUser().Where("id = ?", userID).Updates(user).Error
+	if err != nil {
+		log.Errorf("[handler.PutUserResetV1Handler] get exist user error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetUserExistV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -104,6 +122,9 @@ func GetUserExistV1Handler(ctx *macaron.Context) (int, []byte) {
 	var user models.User
 	err := models.GetUser().Where("name = ?", username).First(&user).Error
 	if err != nil {
+		if err.Error() == "record not found" {
+			return JSON(http.StatusOK, false)
+		}
 		log.Errorf("[handler.GetUserExistV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
@@ -113,4 +134,25 @@ func GetUserExistV1Handler(ctx *macaron.Context) (int, []byte) {
 	}
 
 	return JSON(http.StatusOK, false)
+}
+
+func GetUserListV1Handler(ctx *macaron.Context) (int, []byte) {
+	pageIndex, _ := strconv.Atoi(ctx.Query("page"))
+	pageSize, _ := strconv.Atoi(ctx.Query("pagesize"))
+
+	log.Debugf("pageIndex=%v,pageSize=%v\n", pageIndex, pageSize)
+
+	var users []models.User
+	var err error
+	if pageIndex > 0 {
+		err = models.GetUser().Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&users).Error
+	} else {
+		err = models.GetUser().Limit(pageSize).Find(&users).Error
+	}
+	if err != nil {
+		log.Errorf("[handler.GetUserListV1Handler] error:%v\n", err)
+		return JSON(http.StatusBadRequest, err)
+	}
+
+	return JSON(http.StatusOK, users)
 }

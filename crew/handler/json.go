@@ -34,10 +34,12 @@ func JSON(code int, msg interface{}) (int, []byte) {
 	var result []byte
 	switch code {
 	case http.StatusOK:
-		result, _ = json.Marshal(map[string]interface{}{"code": http.StatusOK, "result": msg})
-	case http.StatusBadRequest:
-		result, _ = json.Marshal(map[string]interface{}{"code": http.StatusBadRequest, "errMsg": msg})
+		result, _ = json.Marshal(msg)
+	case http.StatusCreated, http.StatusNoContent, http.StatusAccepted:
+		// POST/PUT/DELETE success, return nothing
+		result, _ = json.Marshal(map[string]interface{}{"result": "success"})
 	default:
+		result, _ = json.Marshal(map[string]interface{}{"error": msg})
 	}
-	return http.StatusOK, result
+	return code, result
 }

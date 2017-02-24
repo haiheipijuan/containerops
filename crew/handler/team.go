@@ -19,7 +19,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Huawei/containerops/crew/models"
 	"gopkg.in/macaron.v1"
@@ -49,7 +48,7 @@ func PostTeamV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func DeleteTeamV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -59,7 +58,7 @@ func DeleteTeamV1Handler(ctx *macaron.Context) (int, []byte) {
 		log.Errorf("[handler.DeleteTeamV1Handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusNoContent, "success")
 }
 
 func PutTeamV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -76,14 +75,13 @@ func PutTeamV1Handler(ctx *macaron.Context) (int, []byte) {
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	team.ID, _ = strconv.ParseInt(ctx.Params(":team"), 10, 64)
-
-	err = models.GetTeam().Save(&team).Error
+	teamID := ctx.Params(":team")
+	err = models.GetTeam().Where("id = ?", teamID).Updates(team).Error
 	if err != nil {
-		log.Errorf("[handler.PutTeamV1Handler] save team error:%v\n", err)
+		log.Errorf("[handler.PutTeamV1Handler] update team error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }
 
 func GetTeamV1Handler(ctx *macaron.Context) (int, []byte) {
@@ -112,35 +110,36 @@ func GetTeamListV1Handler(ctx *macaron.Context) (int, []byte) {
 	return JSON(http.StatusOK, teams)
 }
 
-func PostTeamRoleAssignV1handler(ctx *macaron.Context) (int, []byte) {
+func PutTeamRoleAssignV1handler(ctx *macaron.Context) (int, []byte) {
 	reqBody, err := ctx.Req.Body().Bytes()
 	if err != nil {
 		log.Errorf("[handler.PostTeamRoleAssignV1handler] parse request body error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	var role models.Role
-	err = json.Unmarshal(reqBody, &role)
+	var request struct {
+		TeamID int64 `json:"team_id"`
+		RoleID int64 `json:"role_id"`
+	}
+	err = json.Unmarshal(reqBody, &request)
 	if err != nil {
 		log.Errorf("[handler.PostTeamRoleAssignV1handler] json unmarshal error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	teamID := ctx.Params(":team")
-
 	var team models.Team
-	err = models.GetTeam().Where("id = ?", teamID).First(&team).Error
+	err = models.GetTeam().Where("id = ?", request.TeamID).First(&team).Error
 	if err != nil {
 		log.Errorf("[handler.PostTeamRoleAssignV1handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	team.Role = role
-	err = models.GetTeam().Save(&team).Error
+	team.RoleID = request.RoleID
+	err = models.GetTeam().Where("id = ?", team.ID).Update("").Error
 	if err != nil {
 		log.Errorf("[handler.PostTeamRoleAssignV1handler] error:%v\n", err)
 		return JSON(http.StatusBadRequest, err)
 	}
 
-	return JSON(http.StatusOK, "success")
+	return JSON(http.StatusCreated, "success")
 }

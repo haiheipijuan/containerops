@@ -27,8 +27,7 @@ type Application struct {
 	ID        int64      `json:"id" gorm:"primary_key"` // Application ID
 	Name      string     `json:"name"`                  // Application name
 	Private   bool       `json:"private"`               // Application is public or private
-	Project   int64      `json:"project_id"`            // Which project the application belongs to
-	Teams     []Team     `json:"teams"`                 // Different teams have differt permissions
+	ProjectID int64      `json:"project_id"`            // Which project the application belongs to
 	CreatedAt time.Time  `json:"-"`
 	UpdatedAt time.Time  `json:"-"`
 	DeletedAt *time.Time `json:"-" sql:"index"`

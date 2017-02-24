@@ -24,14 +24,13 @@ import (
 
 // Workflow Table define.
 type Workflow struct {
-	ID           int64      `json:"id" gorm:"primary_key"` // Workflow ID
-	Name         string     `json:"name"`                  // Workflow name
-	Private      bool       `json:"private"`               // Workflow is public or private
-	Organization int64      `json:"org_id"`                // Which organization the workflow belongs to
-	Teams        []Team     `json:"teams"`                 // Different teams have differt permissions
-	CreatedAt    time.Time  `json:"-"`
-	UpdatedAt    time.Time  `json:"-"`
-	DeletedAt    *time.Time `json:"-" sql:"index"`
+	ID             int64      `json:"id" gorm:"primary_key"` // Workflow ID
+	Name           string     `json:"name"`                  // Workflow name
+	Private        bool       `json:"private"`               // Workflow is public or private
+	OrganizationID int64      `json:"org_id"`                // Which organization the workflow belongs to
+	CreatedAt      time.Time  `json:"-"`
+	UpdatedAt      time.Time  `json:"-"`
+	DeletedAt      *time.Time `json:"-" sql:"index"`
 }
 
 // TableName is return the table name of Workflow in database.
